@@ -1,7 +1,7 @@
 (ns korma.test.db
   (:use [clojure.test :only [deftest is testing]]
         [korma.db :only [connection-pool defdb get-connection h2
-                         mssql mysql oracle postgres sqlite3]]))
+                         mssql mysql mysql-replicated oracle postgres sqlite3]]))
 
 
 (def db-config-with-defaults
@@ -105,6 +105,26 @@
             :make-pool? false}
            (mysql {:host "host"
                    :port "port"
+                   :db "db"
+                   :make-pool? false})))))
+
+(deftest test-mysql-replicated
+  (testing "mysql replicated - defaults"
+    (is (= {:classname "com.mysql.jdbc.ReplicationDriver"
+            :subprotocol "mysql:replication"
+            :subname "//localhost:3306,localhost:3306/"
+            :delimiters "`"
+            :make-pool? true}
+           (mysql-replicated {}))))
+  (testing "mysql replicated - options selected"
+    (is (= {:db "db"
+            :hosts "master,slave1,slave2"
+            :classname "com.mysql.jdbc.ReplicationDriver"
+            :subprotocol "mysql:replication"
+            :subname "//master,slave1,slave2/db"
+            :delimiters "`"
+            :make-pool? false}
+           (mysql-replicated {:hosts "master,slave1,slave2"
                    :db "db"
                    :make-pool? false})))))
 

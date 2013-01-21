@@ -106,6 +106,21 @@
           :make-pool? make-pool?}
          opts))
 
+(defn mysql-replicated
+  "Create a database specification for a mysql database with replication enabled.
+  Opts should include keys for :db, :user, and :password. You can also optionally
+  set hosts and make the connection pooled. Delimiters are automatically set
+  to \"`\"."
+  [{:keys [hosts db make-pool?]
+    :or {hosts "localhost:3306,localhost:3306" db "" make-pool? true}
+    :as opts}]
+  (merge {:classname "com.mysql.jdbc.ReplicationDriver"
+          :subprotocol "mysql:replication"
+          :subname (str "//" hosts "/" db)
+          :delimiters "`"
+          :make-pool? make-pool?}
+         opts))
+
 (defn mssql
   "Create a database specification for a mssql database. Opts should include keys
   for :db, :user, and :password. You can also optionally set host and port."
